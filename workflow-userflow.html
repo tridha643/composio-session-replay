@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com data:; img-src https: data: blob: https://sideshow.sh; connect-src https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; media-src https: data: blob: https://sideshow.sh">
+<title>Example: publish and replay a CSV report</title>
+<style>:root{--color-background-primary: #ffffff;--color-background-secondary: #eaeef2;--color-background-tertiary: #f6f8fa;--color-background-info: #ddf4ff;--color-background-success: #dafbe1;--color-background-warning: #fff8c5;--color-background-danger: #ffebe9;--color-text-primary: #1f2328;--color-text-secondary: #59636e;--color-text-tertiary: #818b98;--color-text-info: #0969da;--color-text-success: #1a7f37;--color-text-warning: #9a6700;--color-text-danger: #cf222e;--color-border-primary: #afb8c1;--color-border-secondary: #d1d9e0;--color-border-tertiary: #d1d9e0;--color-border-info: #54aeff;--color-border-success: #4ac26b;--color-border-warning: #d4a72c;--color-border-danger: #ff8182;}@media (prefers-color-scheme: dark){:root{--color-background-primary: #1c2128;--color-background-secondary: #161b22;--color-background-tertiary: #0d1117;--color-background-info: rgba(56, 139, 253, 0.15);--color-background-success: rgba(63, 185, 80, 0.15);--color-background-warning: rgba(210, 153, 34, 0.15);--color-background-danger: rgba(248, 81, 73, 0.15);--color-text-primary: #e6edf3;--color-text-secondary: #9198a1;--color-text-tertiary: #6e7681;--color-text-info: #4493f8;--color-text-success: #3fb950;--color-text-warning: #d29922;--color-text-danger: #ff7b72;--color-border-primary: #444c56;--color-border-secondary: #30363d;--color-border-tertiary: #30363d;--color-border-info: #54aeff;--color-border-success: #4ac26b;--color-border-warning: #d4a72c;--color-border-danger: #ff8182;}}
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+}
+html { box-sizing: border-box; scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font: 16px/1.6 var(--font-sans);
+}
+
+:root { color-scheme: light dark; }
+button {
+  font: 500 14px/1.4 var(--font-sans);
+  color: var(--color-text-primary);
+  background: none;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 6px 14px;
+  cursor: pointer;
+}
+button:hover { background: var(--color-background-secondary); }
+input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea {
+  font: 14px/1.4 var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 6px 10px;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--color-border-info); }
+input::placeholder, textarea::placeholder { color: var(--color-text-tertiary); }
+textarea { resize: vertical; }
+input[type=checkbox], input[type=radio], input[type=range], progress {
+  accent-color: var(--color-border-info);
+}
+svg { font-family: var(--font-sans); fill: var(--color-text-primary); }
+.t { font-size: 14px; }
+.ts { font-size: 12px; fill: var(--color-text-secondary); }
+.th { font-size: 14px; font-weight: 500; }
+.box { fill: var(--color-background-secondary); stroke: var(--color-border-tertiary); rx: 8px; }
+.arr { stroke: var(--color-text-secondary); stroke-width: 1.2; fill: none; }
+.leader { stroke: var(--color-border-secondary); stroke-width: 1; stroke-dasharray: 3 4; fill: none; }
+.node { cursor: pointer; }
+.node:hover { opacity: 0.75; }
+.c-blue, .c-blue .box { fill: var(--color-background-info); stroke: var(--color-border-info); }
+.c-blue text, text.c-blue { fill: var(--color-text-info); stroke: none; }
+.c-teal, .c-teal .box { fill: var(--c-teal-bg); stroke: var(--c-teal-line); }
+.c-teal text, text.c-teal { fill: var(--c-teal-text); stroke: none; }
+.c-amber, .c-amber .box { fill: var(--color-background-warning); stroke: var(--color-border-warning); }
+.c-amber text, text.c-amber { fill: var(--color-text-warning); stroke: none; }
+.c-coral, .c-coral .box { fill: var(--c-coral-bg); stroke: var(--c-coral-line); }
+.c-coral text, text.c-coral { fill: var(--c-coral-text); stroke: none; }
+.c-green, .c-green .box { fill: var(--color-background-success); stroke: var(--color-border-success); }
+.c-green text, text.c-green { fill: var(--color-text-success); stroke: none; }
+.c-red, .c-red .box { fill: var(--color-background-danger); stroke: var(--color-border-danger); }
+.c-red text, text.c-red { fill: var(--color-text-danger); stroke: none; }
+.c-gray, .c-gray .box { fill: var(--color-background-secondary); stroke: var(--color-border-secondary); }
+.c-gray text, text.c-gray { fill: var(--color-text-secondary); stroke: none; }
+:root{--c-teal-bg: #e1f4f1;--c-teal-line: #1fa996;--c-teal-text: #0c6e62;--c-coral-bg: #fdece5;--c-coral-line: #e8835e;--c-coral-text: #a44f28;}@media (prefers-color-scheme: dark){:root{--c-teal-bg: rgba(31, 169, 150, 0.18);--c-teal-line: #1fa996;--c-teal-text: #6fd0c2;--c-coral-bg: rgba(232, 131, 94, 0.18);--c-coral-line: #e8835e;--c-coral-text: #f0a987;}}:root{color-scheme:light dark}</style>
+<style>html,body{background:transparent!important}body{min-height:0!important}svg{max-width:100%}img{max-width:100%;height:auto}</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs></svg>
+<style>
+.flow{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);line-height:1.45}.flow *{box-sizing:border-box}.flow header,.flow footer,.tabs,.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.flow header{justify-content:space-between;margin-bottom:12px}.flow h2{font-size:19px;font-weight:500;margin:0}.muted{color:var(--color-text-secondary)}.simulation{font-size:12px;color:var(--color-text-secondary)}.tabs{gap:0;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:16px}.tabs button{background:transparent;border:0;border-radius:0;padding:9px 12px;color:var(--color-text-secondary);font:inherit}.tabs button[aria-current=step]{color:var(--color-text-info);border-bottom:2px solid var(--color-border-info)}.tabs button:disabled{opacity:.5;cursor:default}.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}.flow label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:5px}.flow select{width:100%;font:inherit;padding:8px;background:var(--color-background-primary);color:var(--color-text-primary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md)}.flow p{margin:10px 0}.flow footer{margin-top:16px}.flow button{cursor:pointer;font:inherit;padding:8px 12px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}.flow button.primary{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}.receipt{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 0;border-block:1px solid var(--color-border-tertiary)}.success{color:var(--color-text-success)}.flow strong{font-weight:500}.trace{padding:8px 0;margin:0;list-style:none}.trace li{padding:3px 0}.trace li span{display:inline-block;width:18px;color:var(--color-text-success)}.flow details{font-size:12px;margin-top:10px;color:var(--color-text-secondary)}.flow summary{cursor:pointer}.flow code,.flow pre{font-family:var(--font-mono);font-size:12px}.flow pre{white-space:pre-wrap;background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);margin:8px 0}.export-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}.flow [hidden]{display:none!important}.file-list{margin:8px 0;padding-left:18px}.flow :focus-visible{outline:2px solid var(--color-border-info);outline-offset:3px}@media(max-width:480px){.fields,.export-grid{grid-template-columns:1fr;gap:10px}.tabs button{padding:8px}.flow h2{font-size:17px}}
+</style>
+<section class="flow" aria-label="Interactive workflow example">
+ <header><h2>Turn a CSV into a published report</h2><span class="simulation">Interactive example · simulated data</span></header>
+ <nav class="tabs" aria-label="Workflow steps"><button data-screen="setup" aria-current="step">1. Set up</button><button data-screen="result" disabled>2. Inspect</button><button data-screen="replay" disabled>3. Replay</button><button data-screen="export" disabled>4. Export</button></nav>
+ <div id="setup">
+  <div class="fields"><div><label for="source">Input file</label><select id="source"><option value="september">sales-september.csv</option><option value="october">sales-october.csv</option></select></div><div><label for="folder">Publish to</label><select id="folder"><option>Demo Drive / Weekly reports</option><option>Demo Drive / Sandbox</option></select></div></div>
+  <p class="muted">Summarize sales by region, create a CSV report, and verify the published file.</p>
+  <footer><button class="primary" id="run">Run example</button><span class="muted">Creates one new file in the selected folder.</span></footer>
+ </div>
+ <div id="result" hidden aria-live="polite">
+  <div class="receipt"><div><strong id="report-name">sales-september-summary.csv</strong><br><span class="muted" id="destination"></span></div><div><strong class="success">Verified</strong><br><span id="total"></span></div></div>
+  <ul class="trace"><li><span>✓</span> Uploaded the input and generated the report</li><li><span>✓</span> Published to Drive and checked the downloaded contents</li><li><span>✓</span> Removed temporary files and closed the session</li></ul>
+  <details><summary>Inspect the recorded calls and file bindings</summary><p><code>createUploadURL → PUT → executeMeta → list → createDownloadURL → GET → execute → proxyExecute → files.delete → session.delete</code></p><p>Setup records <code>toolkits / tools / search / link</code>. The upload feeds the report step; the report feeds the Drive upload. Replay replaces the session and file URLs.</p><p id="run-info"></p></details>
+  <footer><button class="primary" data-go="replay">Replay with another CSV</button><button data-go="export">Preview export</button></footer>
+ </div>
+ <div id="replay" hidden>
+  <div class="fields"><div><label for="replay-source">Replace the input file</label><select id="replay-source"><option value="october">sales-october.csv</option><option value="september">sales-september.csv</option></select></div><div><label>Keep the same workflow</label><p style="margin:7px 0">Summarize → publish → verify</p></div></div>
+  <p class="muted">A fresh session uploads the new CSV and reconnects each step to its new output. Creates another report in <span id="replay-folder"></span>.</p>
+  <footer><button class="primary" id="replay-run">Replay example</button><span id="previous" class="muted"></span></footer>
+ </div>
+ <div id="export" hidden>
+  <div class="export-grid"><div><strong>A project you can run yourself</strong><ul class="file-list"><li>Workflow + shared runner</li><li>CSV report template</li><li>Configuration + README</li></ul><button id="download">Download example manifest</button></div><div><label>Proposed generated-project usage</label><pre>pnpm install
+# Configure your Composio account and folder
+pnpm run report -- --file ./sales-november.csv</pre><span class="muted">The final export runs without this app. Secrets and temporary URLs stay out of the bundle.</span></div></div>
+  <footer><button data-go="result">Back to results</button><button id="restart">Start over</button><span id="download-status" class="muted" aria-live="polite"></span></footer>
+ </div>
+</section>
+<script>
+(() => {
+ const datasets = {september:{total:'$1,680',rows:24},october:{total:'$2,240',rows:32}};
+ let runs = [];
+ const get = id => document.getElementById(id);
+ function showScreen(screen) {
+  ['setup','result','replay','export'].forEach(id => {get(id).hidden = id !== screen;});
+  document.querySelectorAll('[data-screen]').forEach(button => {if(button.dataset.screen===screen) button.setAttribute('aria-current','step'); else button.removeAttribute('aria-current');});
+ }
+ function runExample(source, replay) {
+  const dataset = datasets[source];
+  const folder = get('folder').value;
+  const run = {input:'sales-'+source+'.csv',output:'sales-'+source+'-summary.csv',folder,session:'example-session-'+(runs.length+1),...dataset};
+  runs.push(run);
+  get('report-name').textContent=run.output;
+  get('destination').textContent=folder+' · '+(replay?'Replay':'First run');
+  get('total').textContent=dataset.total+' total sales';
+  get('run-info').textContent=run.session+' · '+dataset.rows+' input rows · simulated arguments and results';
+  get('replay-folder').textContent=folder;
+  get('previous').textContent='Previous run: '+run.input;
+  document.querySelectorAll('[data-screen]').forEach(button=>button.disabled=false);
+  showScreen('result');
+ }
+ document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.screen)));
+ document.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.go)));
+ get('run').addEventListener('click',()=>runExample(get('source').value,false));
+ get('replay-run').addEventListener('click',()=>runExample(get('replay-source').value,true));
+ get('restart').addEventListener('click',()=>{runs=[];get('download-status').textContent='';document.querySelectorAll('[data-screen]').forEach(button=>button.disabled=button.dataset.screen!=='setup');showScreen('setup');});
+ get('download').addEventListener('click',()=>{
+  const manifest={exampleOnly:true,description:'User-flow mockup; this manifest is not a runnable SDK export.',runs,steps:['upload_csv','generate_report','publish_to_drive','verify_output','cleanup'],bindings:{reportInput:'upload_csv.output',publishInput:'generate_report.output',verifyInput:'publish_to_drive.fileId'}};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(manifest,null,2)],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='example-workflow.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  get('download-status').textContent='Downloaded the sample manifest.';
+ });
+})();
+</script>
+
+<script>
+window.sendPrompt = function (text) {
+  parent.postMessage({ __sideshow: true, type: 'send-prompt', text: String(text) }, '*');
+};
+window.openLink = function (url) {
+  parent.postMessage({ __sideshow: true, type: 'open-link', url: String(url) }, '*');
+};
+window.copyToClipboard = function (text) {
+  parent.postMessage({ __sideshow: true, type: 'copy', text: String(text) }, '*');
+};
+document.addEventListener('click', function (e) {
+  var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+  if (a && /^https?:/.test(a.href)) { e.preventDefault(); window.openLink(a.href); }
+});
+// Cmd+Option+Up/Down switches sessions in the sidebar, but keydowns fire in
+// whichever document holds focus — once the user clicks into a surface, this
+// sandboxed iframe swallows them. Forward just that combo to the host.
+document.addEventListener('keydown', function (e) {
+  if (!e.metaKey || !e.altKey || e.ctrlKey || e.shiftKey) return;
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+  e.preventDefault();
+  parent.postMessage({ __sideshow: true, type: 'switch-session', key: e.key }, '*');
+});
+// Report content height to the parent so it can size this iframe, while
+// breaking a feedback loop that can peg a CPU core.
+//
+// The loop: the parent sets the iframe's height to whatever we report, but some
+// content's height *inverts* with the frame's height — a scrollbar that appears
+// at height A reflows the content to height B, then disappears at B and reflows
+// back to A (or any 100vh / percentage-derived layout). The ResizeObserver then
+// fires on every flip, so reported heights alternate A, B, A, B... forever. With
+// a cheap surface that's a brief blip; with a heavy one (a big syntax-highlighted
+// diff/markdown surface) each relayout is expensive and the tab sits at 100% CPU
+// until the surface unmounts.
+//
+// A plain h !== __lastH guard can't stop this: in a 2-cycle every value differs
+// from the one immediately before it. So we remember the previous height too and
+// defer a return to it *if it recurs faster than a human could* (< 250ms) — that's
+// the runaway. The deferred pass keeps one trailing re-measure and reports the
+// taller height in the pair, so an ordinary font/image reflow can't leave the
+// frame permanently clipped.
+var __lastH = 0;
+var __prevH = 0;
+var __lastT = 0;
+var __seenH = 0;
+var __trailTimer = 0;
+var __trailH = 0;
+var __FLIP_MS = 250;
+var __TRAIL_MS = 350;
+function __now() {
+  return typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+}
+function __measureHeight() {
+  return document.body
+    ? document.body.scrollHeight
+    : document.documentElement.scrollHeight;
+}
+function __postHeight(h, t) {
+  __prevH = __lastH;
+  __lastH = h;
+  __lastT = t;
+  parent.postMessage({ __sideshow: true, type: 'resize', height: h }, '*');
+}
+function __clearTrailing() {
+  if (__trailTimer && typeof clearTimeout !== 'undefined') clearTimeout(__trailTimer);
+  __trailTimer = 0;
+  __trailH = 0;
+}
+function __flushTrailing() {
+  __trailTimer = 0;
+  var measured = __measureHeight();
+  if (measured > 0) __seenH = measured;
+  var target = Math.max(__trailH || 0, measured || 0);
+  __trailH = 0;
+  if (target <= 0 || target === __lastH) return;
+  __postHeight(target, __now());
+}
+function __scheduleTrailing(h, reset) {
+  __trailH = Math.max(__trailH || 0, h || 0, __lastH || 0);
+  if (__trailTimer) {
+    if (!reset) return;
+    if (typeof clearTimeout !== 'undefined') clearTimeout(__trailTimer);
+  }
+  __trailTimer = setTimeout(__flushTrailing, __TRAIL_MS);
+}
+function __report() {
+  var h = __measureHeight();
+  if (h <= 0) return; // no content yet
+  var changed = h !== __seenH;
+  __seenH = h;
+  if (h === __lastH) return; // unchanged
+  var t = __now();
+  if (h === __prevH && (__trailTimer || t - __lastT < __FLIP_MS)) {
+    __scheduleTrailing(h, true); // rapid A<->B flip: defer one settled report
+    return;
+  }
+  __clearTrailing();
+  __postHeight(h, t);
+}
+if (document.readyState === 'complete') __report();
+else window.addEventListener('load', function () { requestAnimationFrame(__report); });
+setTimeout(__report, 60);
+setTimeout(__report, 350);
+setTimeout(__report, 1500);
+setTimeout(__report, 3000);
+setTimeout(__report, 6000);
+setTimeout(__report, 10000);
+if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+  document.fonts.ready.then(function () { __report(); });
+}
+if (window.ResizeObserver) {
+  window.__ssRO = new ResizeObserver(__report);
+  window.__ssRO.observe(document.documentElement);
+  if (document.body) window.__ssRO.observe(document.body);
+}
+</script>
+
+<style>body{padding-left:0!important;padding-right:0!important;text-align:left!important}.widget,.demo,.sample{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important}table{margin-left:0!important;margin-right:0!important}th,td,caption{text-align:left!important}svg{margin-left:0!important;margin-right:0!important}</style></body>
+</html>

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.replay-data/
+.env
+.env.local
+exports/

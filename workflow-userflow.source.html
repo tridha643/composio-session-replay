@@ -1,0 +1,65 @@
+<style>
+.flow{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);line-height:1.45}.flow *{box-sizing:border-box}.flow header,.flow footer,.tabs,.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.flow header{justify-content:space-between;margin-bottom:12px}.flow h2{font-size:19px;font-weight:500;margin:0}.muted{color:var(--color-text-secondary)}.simulation{font-size:12px;color:var(--color-text-secondary)}.tabs{gap:0;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:16px}.tabs button{background:transparent;border:0;border-radius:0;padding:9px 12px;color:var(--color-text-secondary);font:inherit}.tabs button[aria-current=step]{color:var(--color-text-info);border-bottom:2px solid var(--color-border-info)}.tabs button:disabled{opacity:.5;cursor:default}.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}.flow label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:5px}.flow select{width:100%;font:inherit;padding:8px;background:var(--color-background-primary);color:var(--color-text-primary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md)}.flow p{margin:10px 0}.flow footer{margin-top:16px}.flow button{cursor:pointer;font:inherit;padding:8px 12px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}.flow button.primary{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}.receipt{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 0;border-block:1px solid var(--color-border-tertiary)}.success{color:var(--color-text-success)}.flow strong{font-weight:500}.trace{padding:8px 0;margin:0;list-style:none}.trace li{padding:3px 0}.trace li span{display:inline-block;width:18px;color:var(--color-text-success)}.flow details{font-size:12px;margin-top:10px;color:var(--color-text-secondary)}.flow summary{cursor:pointer}.flow code,.flow pre{font-family:var(--font-mono);font-size:12px}.flow pre{white-space:pre-wrap;background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);margin:8px 0}.export-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:16px}.flow [hidden]{display:none!important}.file-list{margin:8px 0;padding-left:18px}.flow :focus-visible{outline:2px solid var(--color-border-info);outline-offset:3px}@media(max-width:480px){.fields,.export-grid{grid-template-columns:1fr;gap:10px}.tabs button{padding:8px}.flow h2{font-size:17px}}
+</style>
+<section class="flow" aria-label="Interactive workflow example">
+ <header><h2>Turn a CSV into a published report</h2><span class="simulation">Interactive example · simulated data</span></header>
+ <nav class="tabs" aria-label="Workflow steps"><button data-screen="setup" aria-current="step">1. Set up</button><button data-screen="result" disabled>2. Inspect</button><button data-screen="replay" disabled>3. Replay</button><button data-screen="export" disabled>4. Export</button></nav>
+ <div id="setup">
+  <div class="fields"><div><label for="source">Input file</label><select id="source"><option value="september">sales-september.csv</option><option value="october">sales-october.csv</option></select></div><div><label for="folder">Publish to</label><select id="folder"><option>Demo Drive / Weekly reports</option><option>Demo Drive / Sandbox</option></select></div></div>
+  <p class="muted">Summarize sales by region, create a CSV report, and verify the published file.</p>
+  <footer><button class="primary" id="run">Run example</button><span class="muted">Creates one new file in the selected folder.</span></footer>
+ </div>
+ <div id="result" hidden aria-live="polite">
+  <div class="receipt"><div><strong id="report-name">sales-september-summary.csv</strong><br><span class="muted" id="destination"></span></div><div><strong class="success">Verified</strong><br><span id="total"></span></div></div>
+  <ul class="trace"><li><span>✓</span> Uploaded the input and generated the report</li><li><span>✓</span> Published to Drive and checked the downloaded contents</li><li><span>✓</span> Removed temporary files and closed the session</li></ul>
+  <details><summary>Inspect the recorded calls and file bindings</summary><p><code>createUploadURL → PUT → executeMeta → list → createDownloadURL → GET → execute → proxyExecute → files.delete → session.delete</code></p><p>Setup records <code>toolkits / tools / search / link</code>. The upload feeds the report step; the report feeds the Drive upload. Replay replaces the session and file URLs.</p><p id="run-info"></p></details>
+  <footer><button class="primary" data-go="replay">Replay with another CSV</button><button data-go="export">Preview export</button></footer>
+ </div>
+ <div id="replay" hidden>
+  <div class="fields"><div><label for="replay-source">Replace the input file</label><select id="replay-source"><option value="october">sales-october.csv</option><option value="september">sales-september.csv</option></select></div><div><label>Keep the same workflow</label><p style="margin:7px 0">Summarize → publish → verify</p></div></div>
+  <p class="muted">A fresh session uploads the new CSV and reconnects each step to its new output. Creates another report in <span id="replay-folder"></span>.</p>
+  <footer><button class="primary" id="replay-run">Replay example</button><span id="previous" class="muted"></span></footer>
+ </div>
+ <div id="export" hidden>
+  <div class="export-grid"><div><strong>A project you can run yourself</strong><ul class="file-list"><li>Workflow + shared runner</li><li>CSV report template</li><li>Configuration + README</li></ul><button id="download">Download example manifest</button></div><div><label>Proposed generated-project usage</label><pre>pnpm install
+# Configure your Composio account and folder
+pnpm run report -- --file ./sales-november.csv</pre><span class="muted">The final export runs without this app. Secrets and temporary URLs stay out of the bundle.</span></div></div>
+  <footer><button data-go="result">Back to results</button><button id="restart">Start over</button><span id="download-status" class="muted" aria-live="polite"></span></footer>
+ </div>
+</section>
+<script>
+(() => {
+ const datasets = {september:{total:'$1,680',rows:24},october:{total:'$2,240',rows:32}};
+ let runs = [];
+ const get = id => document.getElementById(id);
+ function showScreen(screen) {
+  ['setup','result','replay','export'].forEach(id => {get(id).hidden = id !== screen;});
+  document.querySelectorAll('[data-screen]').forEach(button => {if(button.dataset.screen===screen) button.setAttribute('aria-current','step'); else button.removeAttribute('aria-current');});
+ }
+ function runExample(source, replay) {
+  const dataset = datasets[source];
+  const folder = get('folder').value;
+  const run = {input:'sales-'+source+'.csv',output:'sales-'+source+'-summary.csv',folder,session:'example-session-'+(runs.length+1),...dataset};
+  runs.push(run);
+  get('report-name').textContent=run.output;
+  get('destination').textContent=folder+' · '+(replay?'Replay':'First run');
+  get('total').textContent=dataset.total+' total sales';
+  get('run-info').textContent=run.session+' · '+dataset.rows+' input rows · simulated arguments and results';
+  get('replay-folder').textContent=folder;
+  get('previous').textContent='Previous run: '+run.input;
+  document.querySelectorAll('[data-screen]').forEach(button=>button.disabled=false);
+  showScreen('result');
+ }
+ document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.screen)));
+ document.querySelectorAll('[data-go]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.go)));
+ get('run').addEventListener('click',()=>runExample(get('source').value,false));
+ get('replay-run').addEventListener('click',()=>runExample(get('replay-source').value,true));
+ get('restart').addEventListener('click',()=>{runs=[];get('download-status').textContent='';document.querySelectorAll('[data-screen]').forEach(button=>button.disabled=button.dataset.screen!=='setup');showScreen('setup');});
+ get('download').addEventListener('click',()=>{
+  const manifest={exampleOnly:true,description:'User-flow mockup; this manifest is not a runnable SDK export.',runs,steps:['upload_csv','generate_report','publish_to_drive','verify_output','cleanup'],bindings:{reportInput:'upload_csv.output',publishInput:'generate_report.output',verifyInput:'publish_to_drive.fileId'}};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(manifest,null,2)],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='example-workflow.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  get('download-status').textContent='Downloaded the sample manifest.';
+ });
+})();
+</script>

@@ -1,0 +1,43 @@
+<style>
+.plan{font-family:var(--font-sans);color:var(--color-text-primary)}
+.intro{margin:0 0 12px;font-size:14px;color:var(--color-text-secondary)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.steps button{text-align:left;white-space:normal;padding:10px 12px;font:500 14px var(--font-sans);line-height:1.4}
+.steps button[aria-pressed=true]{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.num{font-family:var(--font-mono);margin-right:7px;color:var(--color-text-secondary)}
+.detail{margin:12px 0;padding:12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.detail h3{font-size:15px;font-weight:500;margin:0 0 5px}.detail p{margin:0;font-size:14px;line-height:1.5}
+.proof{border-left:3px solid var(--color-border-success);padding:2px 0 2px 10px;font-size:13px;line-height:1.5}
+.scope{font-size:12px;color:var(--color-text-secondary);margin:9px 0 0}
+@media(max-width:430px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<div class="plan">
+ <p class="intro">Working session → reusable TypeScript project. All six steps are planned; select one for details.</p>
+ <div class="steps" aria-label="Implementation order">
+  <button type="button" aria-pressed="true" data-step="0"><span class="num">01</span>Run a real workflow</button>
+  <button type="button" aria-pressed="false" data-step="1"><span class="num">02</span>Record SDK calls</button>
+  <button type="button" aria-pressed="false" data-step="2"><span class="num">03</span>Make it reusable</button>
+  <button type="button" aria-pressed="false" data-step="3"><span class="num">04</span>Export the project</button>
+  <button type="button" aria-pressed="false" data-step="4"><span class="num">05</span>Add the review UI</button>
+  <button type="button" aria-pressed="false" data-step="5"><span class="num">06</span>Verify a fresh run</button>
+ </div>
+ <section class="detail" aria-live="polite"><h3 id="step-title">First: prove the workflow works</h3><p id="step-body">Upload a document to a test Google Drive folder, read it back, and compare the contents. Get one useful result before building the recorder UI.</p></section>
+ <div class="proof">Done means: unzip → configure → use a different file → run in a fresh session → verify the result.</div>
+ <p class="scope">V1: one sequential workflow. Later: branching, scheduling, arbitrary chat conversion, and dashboard integration.</p>
+</div>
+<script>
+const details = [
+ ['First: prove the workflow works','Upload a document to a test Google Drive folder, read it back, and compare the contents. Get one useful result before building the recorder UI.'],
+ ['Capture what actually happened','Record each SDK operation, its arguments, result, order, and failures. A partial or failed run must stay visibly incomplete.'],
+ ['The hardest part: remove one-run assumptions','Make the file and destination configurable. Create a new session, regenerate temporary URLs, and bind later arguments to IDs returned by earlier steps.'],
+ ['Give someone a project they can keep','Export workflow.ts, pinned dependencies, .env.example, setup instructions, and verification steps. Keep credentials and private response data out of the download.'],
+ ['Make the handoff easy to inspect','Show recorded steps, editable inputs, and export readiness. Explain unresolved dependencies, then provide one clear Download project action.'],
+ ['Prove independence from the original session','Unzip into a clean directory, supply credentials and a different input document, then run and verify the destination contents. This is the acceptance test.']
+];
+document.querySelectorAll('[data-step]').forEach(button=>button.addEventListener('click',()=>{
+ document.querySelectorAll('[data-step]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ const [title,body]=details[Number(button.dataset.step)];
+ document.getElementById('step-title').textContent=title;
+ document.getElementById('step-body').textContent=body;
+}));
+</script>

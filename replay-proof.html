@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com data:; img-src https: data: blob: https://sideshow.sh; connect-src https://cdnjs.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com https://fonts.gstatic.com; media-src https: data: blob: https://sideshow.sh">
+<base href="https://sideshow.sh/">
+<style>:root{--bg: #f6f8fa;--panel: #eaeef2;--surface: #ffffff;--text: #1f2328;--muted: #59636e;--faint: #818b98;--border: #d1d9e0;--border-2: #afb8c1;--accent: #0969da;--accent-bg: #ddf4ff;--hover: #eaeef2;--danger: #cf222e;}@media (prefers-color-scheme: dark){:root{--bg: #0d1117;--panel: #161b22;--surface: #1c2128;--text: #e6edf3;--muted: #9198a1;--faint: #6e7681;--border: #30363d;--border-2: #444c56;--accent: #4493f8;--accent-bg: rgba(56, 139, 253, 0.15);--hover: rgba(177, 186, 196, 0.12);--danger: #ff7b72;}}:root{--term-bg: #0d1117;--term-bar: #161b22;--term-fg: #e6edf3;--term-title: #9198a1;}
+body { margin: 0; padding: 14px 16px; background: transparent; text-align: center; }
+svg { max-width: 100%; height: auto; }
+.mmd-error {
+  text-align: left; color: var(--danger);
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.mmd-error pre {
+  margin: 6px 0 0; padding: 8px 10px; color: var(--text);
+  background: var(--panel); border: 0.5px solid var(--border);
+  border-radius: 8px; overflow: auto; white-space: pre-wrap;
+}
+:root{color-scheme:light dark}</style>
+<style>html,body{background:transparent!important}body{min-height:0!important}svg{max-width:100%}img{max-width:100%;height:auto}</style></head>
+<body>
+<div id="m"></div>
+<script type="module">
+import mermaid from "https://esm.sh/mermaid@11";
+const src = "flowchart LR\n A[\"Record run\u003cbr/>CSV A\"] --> B[\"Replay with new inputs\u003cbr/>CSV B · fresh session\"]\n B --> C[\"Export and run alone\u003cbr/>CSV C · app stopped\"]\n class B,C accent";
+const __mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+const __systemDark = !!(__mql && __mql.matches);
+const themeVariables = __systemDark ? {"darkMode":true,"fontFamily":"-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif","fontSize":"14px","background":"#1c2128","primaryColor":"#161b22","primaryBorderColor":"#444c56","primaryTextColor":"#e6edf3","secondaryColor":"#1c2128","tertiaryColor":"#0d1117","mainBkg":"#161b22","nodeBorder":"#444c56","lineColor":"#9198a1","arrowheadColor":"#9198a1","textColor":"#e6edf3","nodeTextColor":"#e6edf3","titleColor":"#e6edf3","classText":"#e6edf3","secondaryTextColor":"#e6edf3","tertiaryTextColor":"#e6edf3","clusterBkg":"#0d1117","clusterBorder":"#444c56","edgeLabelBackground":"#0d1117","actorBkg":"#161b22","actorBorder":"#444c56","actorTextColor":"#e6edf3","actorLineColor":"#9198a1","signalColor":"#9198a1","signalTextColor":"#e6edf3","labelBoxBkgColor":"#1c2128","labelBoxBorderColor":"#444c56","labelTextColor":"#e6edf3","loopTextColor":"#e6edf3","noteBkgColor":"rgba(56, 139, 253, 0.15)","noteBorderColor":"#444c56","noteTextColor":"#e6edf3","sequenceNumberColor":"#1c2128"} : {"darkMode":false,"fontFamily":"-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif","fontSize":"14px","background":"#ffffff","primaryColor":"#eaeef2","primaryBorderColor":"#afb8c1","primaryTextColor":"#1f2328","secondaryColor":"#ffffff","tertiaryColor":"#f6f8fa","mainBkg":"#eaeef2","nodeBorder":"#afb8c1","lineColor":"#59636e","arrowheadColor":"#59636e","textColor":"#1f2328","nodeTextColor":"#1f2328","titleColor":"#1f2328","classText":"#1f2328","secondaryTextColor":"#1f2328","tertiaryTextColor":"#1f2328","clusterBkg":"#f6f8fa","clusterBorder":"#afb8c1","edgeLabelBackground":"#f6f8fa","actorBkg":"#eaeef2","actorBorder":"#afb8c1","actorTextColor":"#1f2328","actorLineColor":"#59636e","signalColor":"#59636e","signalTextColor":"#1f2328","labelBoxBkgColor":"#ffffff","labelBoxBorderColor":"#afb8c1","labelTextColor":"#1f2328","loopTextColor":"#1f2328","noteBkgColor":"#ddf4ff","noteBorderColor":"#afb8c1","noteTextColor":"#1f2328","sequenceNumberColor":"#ffffff"};
+const themeCSS = __systemDark ? "\n      .node rect, .node polygon, rect.actor, .labelBox { rx: 8px; ry: 8px; }\n      .node rect, rect.actor { stroke-width: 1px; }\n      .edgePath .path, .flowchart-link, .actor-line,\n      .messageLine0, .messageLine1 { stroke-width: 1px; }\n      .node.accent > rect, .node.accent > polygon, .node.accent > circle,\n      .node.accent > path { fill: rgba(56, 139, 253, 0.15); stroke: #4493f8; }\n      .node.accent .nodeLabel, .node.accent span, .node.accent text { fill: #4493f8; color: #4493f8; }\n      .flowchart-link.accentLine, .edgePath.accentLine > .path { stroke: #4493f8; }\n    " : "\n      .node rect, .node polygon, rect.actor, .labelBox { rx: 8px; ry: 8px; }\n      .node rect, rect.actor { stroke-width: 1px; }\n      .edgePath .path, .flowchart-link, .actor-line,\n      .messageLine0, .messageLine1 { stroke-width: 1px; }\n      .node.accent > rect, .node.accent > polygon, .node.accent > circle,\n      .node.accent > path { fill: #ddf4ff; stroke: #0969da; }\n      .node.accent .nodeLabel, .node.accent span, .node.accent text { fill: #0969da; color: #0969da; }\n      .flowchart-link.accentLine, .edgePath.accentLine > .path { stroke: #0969da; }\n    ";
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: 'strict',
+  suppressErrorRendering: true,
+  theme: 'base',
+  themeVariables,
+  themeCSS,
+});
+const el = document.getElementById('m');
+try {
+  const { svg } = await mermaid.render('mmd-svg', src);
+  el.innerHTML = svg;
+} catch (e) {
+  // Match the old viewer fallback: a message plus the source echoed so the
+  // agent can see what failed. textContent keeps the source inert.
+  el.className = 'mmd-error';
+  el.textContent = 'Couldn\u2019t render diagram \u2014 ' + (e && e.message ? e.message : 'parse error');
+  const pre = document.createElement('pre');
+  pre.textContent = src;
+  el.appendChild(pre);
+}</script>
+<script>
+window.sendPrompt = function (text) {
+  parent.postMessage({ __sideshow: true, type: 'send-prompt', text: String(text) }, '*');
+};
+window.openLink = function (url) {
+  parent.postMessage({ __sideshow: true, type: 'open-link', url: String(url) }, '*');
+};
+window.copyToClipboard = function (text) {
+  parent.postMessage({ __sideshow: true, type: 'copy', text: String(text) }, '*');
+};
+document.addEventListener('click', function (e) {
+  var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+  if (a && /^https?:/.test(a.href)) { e.preventDefault(); window.openLink(a.href); }
+});
+// Cmd+Option+Up/Down switches sessions in the sidebar, but keydowns fire in
+// whichever document holds focus — once the user clicks into a surface, this
+// sandboxed iframe swallows them. Forward just that combo to the host.
+document.addEventListener('keydown', function (e) {
+  if (!e.metaKey || !e.altKey || e.ctrlKey || e.shiftKey) return;
+  if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+  e.preventDefault();
+  parent.postMessage({ __sideshow: true, type: 'switch-session', key: e.key }, '*');
+});
+// Report content height to the parent so it can size this iframe, while
+// breaking a feedback loop that can peg a CPU core.
+//
+// The loop: the parent sets the iframe's height to whatever we report, but some
+// content's height *inverts* with the frame's height — a scrollbar that appears
+// at height A reflows the content to height B, then disappears at B and reflows
+// back to A (or any 100vh / percentage-derived layout). The ResizeObserver then
+// fires on every flip, so reported heights alternate A, B, A, B... forever. With
+// a cheap surface that's a brief blip; with a heavy one (a big syntax-highlighted
+// diff/markdown surface) each relayout is expensive and the tab sits at 100% CPU
+// until the surface unmounts.
+//
+// A plain h !== __lastH guard can't stop this: in a 2-cycle every value differs
+// from the one immediately before it. So we remember the previous height too and
+// defer a return to it *if it recurs faster than a human could* (< 250ms) — that's
+// the runaway. The deferred pass keeps one trailing re-measure and reports the
+// taller height in the pair, so an ordinary font/image reflow can't leave the
+// frame permanently clipped.
+var __lastH = 0;
+var __prevH = 0;
+var __lastT = 0;
+var __seenH = 0;
+var __trailTimer = 0;
+var __trailH = 0;
+var __FLIP_MS = 250;
+var __TRAIL_MS = 350;
+function __now() {
+  return typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+}
+function __measureHeight() {
+  return document.body
+    ? document.body.scrollHeight
+    : document.documentElement.scrollHeight;
+}
+function __postHeight(h, t) {
+  __prevH = __lastH;
+  __lastH = h;
+  __lastT = t;
+  parent.postMessage({ __sideshow: true, type: 'resize', height: h }, '*');
+}
+function __clearTrailing() {
+  if (__trailTimer && typeof clearTimeout !== 'undefined') clearTimeout(__trailTimer);
+  __trailTimer = 0;
+  __trailH = 0;
+}
+function __flushTrailing() {
+  __trailTimer = 0;
+  var measured = __measureHeight();
+  if (measured > 0) __seenH = measured;
+  var target = Math.max(__trailH || 0, measured || 0);
+  __trailH = 0;
+  if (target <= 0 || target === __lastH) return;
+  __postHeight(target, __now());
+}
+function __scheduleTrailing(h, reset) {
+  __trailH = Math.max(__trailH || 0, h || 0, __lastH || 0);
+  if (__trailTimer) {
+    if (!reset) return;
+    if (typeof clearTimeout !== 'undefined') clearTimeout(__trailTimer);
+  }
+  __trailTimer = setTimeout(__flushTrailing, __TRAIL_MS);
+}
+function __report() {
+  var h = __measureHeight();
+  if (h <= 0) return; // no content yet
+  var changed = h !== __seenH;
+  __seenH = h;
+  if (h === __lastH) return; // unchanged
+  var t = __now();
+  if (h === __prevH && (__trailTimer || t - __lastT < __FLIP_MS)) {
+    __scheduleTrailing(h, true); // rapid A<->B flip: defer one settled report
+    return;
+  }
+  __clearTrailing();
+  __postHeight(h, t);
+}
+if (document.readyState === 'complete') __report();
+else window.addEventListener('load', function () { requestAnimationFrame(__report); });
+setTimeout(__report, 60);
+setTimeout(__report, 350);
+setTimeout(__report, 1500);
+setTimeout(__report, 3000);
+setTimeout(__report, 6000);
+setTimeout(__report, 10000);
+if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+  document.fonts.ready.then(function () { __report(); });
+}
+if (window.ResizeObserver) {
+  window.__ssRO = new ResizeObserver(__report);
+  window.__ssRO.observe(document.documentElement);
+  if (document.body) window.__ssRO.observe(document.body);
+}
+</script>
+<style>body{padding-left:0!important;padding-right:0!important;text-align:left!important}.widget,.demo,.sample{padding-left:0!important;padding-right:0!important;margin-left:0!important;margin-right:0!important}table{margin-left:0!important;margin-right:0!important}th,td,caption{text-align:left!important}svg{margin-left:0!important;margin-right:0!important}</style></body>
+</html>
